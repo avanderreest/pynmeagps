@@ -51,6 +51,21 @@ NMEA_PAYLOADS_GET = {
         "cUnit": CH,
         "wpt": ST,
     },
+    "ALF": {
+        "total_number_ALF_sentences": IN,
+        "sentence_number": IN,
+        "sequential_message_identifier": IN,
+        "time_of_last_change": TM,
+        "alert_category": CH,
+        "alert_priority": CH,
+        "alert_status": CH,
+        "manufacturer_mnemonic": ST,
+        "alert_identifier": IN,
+        "alert_instance": IN,
+        "revision_counter": IN,
+        "escalation_counter": IN,
+        "alert_text": ST,
+    },
     "APA": {
         "LCgwarn": CH,
         "LCcwarn": CH,
@@ -100,6 +115,18 @@ NMEA_PAYLOADS_GET = {
         "dist": DE,
         "distUnit": CH,
         "wpt": ST,
+    },
+    "DBT": {
+        "depthf": DE,
+        "depthfUnit": CH,
+        "depthm": DE,
+        "depthmUnit": CH,
+        "depthFath": DE,
+        "depthFathUnit": CH,
+    },
+    "DPT": {
+        "depth": DE,
+        "offset": DE,
     },
     "DTM": {
         "datum": ST,
@@ -269,6 +296,17 @@ NMEA_PAYLOADS_GET = {
         "freq": DE,
         "beacbps": IN,
     },
+    "MTW": {
+        "temp": DE,
+        "tempUnit": CH,
+    },
+    "MWV": {
+        "windAngle": DE,
+        "ref": CH,
+        "windSpeed": DE,
+        "windSpeedUnit": CH,
+        "status": CH,
+    },
     "ROT": {
         "rot": DE,  # -ve = turn to port
         "valid": CH,  # A valid, V invalid
@@ -323,6 +361,19 @@ NMEA_PAYLOADS_GET = {
         "posMode": CH,
         "navStatus": CH,  # NMEA >=4.10 only
     },
+    "RPM": {
+        "source": CH,
+        "engineShaft": IN,
+        "speed": DE,
+        "Pitch": DE,
+        "status": CH,
+    },
+    "RSA": {
+        "starboard": DE,
+        "starboardStatus": CH,
+        "port": DE,
+        "portStatus": CH,
+    },
     "RTE": {
         "numMsg": IN,
         "msgNum": IN,
@@ -369,6 +420,24 @@ NMEA_PAYLOADS_GET = {
         "gtspd": DE,
         "gstatus": CH,
     },
+    "VDR": {
+        "degT": DE,
+        "degTUnit": CH,
+        "degM": DE,
+        "degMUnit": CH,
+        "knots": DE,
+        "knotsUnit": CH,
+    },
+    "VHW": {
+        "dt": DE,
+        "dtUnit": CH,
+        "dm": DE,
+        "dmUnit": CH,
+        "knots": DE,
+        "knotsUnits": CH,
+        "kmph": DE,
+        "kmphUnit": CH,
+    },
     "VLW": {
         "twd": DE,
         "twdUnit": CH,
@@ -397,6 +466,22 @@ NMEA_PAYLOADS_GET = {
         "EW": CH,
         "wpt": ST,
     },
+    "VWR": {
+        "windAngle": DE,
+        "windAngleUnit": CH,
+        "windSpeedKnt": DE,
+        "windSpeedKntUnit": CH,
+        "windSpeedMs": DE,
+        "windSpeedMsUnit": CH,
+        "windSpeedKmh": DE,
+        "windSpeedKmhUnit": CH,
+    },
+    "XDR": {
+        "type": ST,
+        "value": DE,
+        "units": ST,
+        "sensorName": ST,
+    },
     "XTE": {
         "gwarn": CH,
         "LCcwarn": CH,
@@ -411,6 +496,11 @@ NMEA_PAYLOADS_GET = {
         "year": IN,
         "ltzh": ST,
         "ltzn": ST,
+    },
+    "ZTG": {
+        "time": TM,
+        "timeRemain": TM,
+        "destWpt": IN,
     },
     # *********************************************
     # JVCKENWOOD PROPRIETARY MESSAGES
