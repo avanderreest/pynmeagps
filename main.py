@@ -17,6 +17,7 @@ from datetime import datetime
 from pynmeagps.nmeareader import NMEAReader
 from datetime import time
 from datetime import date
+import pynmeagps.nmeatypes_core as nmt  # so we can add talker device info to message
 
 
 def read(stream: socket.socket):
@@ -59,6 +60,12 @@ def add_fields_to_json(obj):
     json_obj = {}
     for key, value in obj.__dict__.items():
         if key not in ["_immutable", "_mode", "_hpnmeamode", "_payload", "_checksum"]:
+            # case key is _talker_id then key = id or key is _msg_type then key = talker_type_id
+            if key == "_talker":
+                key = "id"  # key = "talker_id"
+            if key == "_msgID":
+                key = "talker_type_id"
+
             # if value is type time, convert to string
             if isinstance(value, time):
                 value = value.strftime("%H:%M:%S.%f")
@@ -66,6 +73,29 @@ def add_fields_to_json(obj):
                 value = value.strftime("%Y-%m-%d")
 
             json_obj[key] = value
+
+        # handle field talker_device
+        if obj._talker in nmt.NMEA_TALKERS:
+            value = nmt.NMEA_TALKERS[
+                obj._talker
+            ]  # get talker_type_desc from nmeatypes_core.py
+        else:
+            value = ""
+        key = "talker_device"
+        json_obj[key] = value  # add talker_device field to json_obj
+
+        # handle field talker_type_desc
+        if obj._msgID in nmt.NMEA_MSGIDS:
+            # then the value of mnt.NMEA_MSGIDS[key] is value of talker_type_desc
+            value = nmt.NMEA_MSGIDS[
+                obj._msgID
+            ]  # get talker_type_desc from nmeatypes_core.py
+        else:
+            value = ""
+        key = "talker_type_desc"
+
+        json_obj[key] = value  # add talker_type_desc field to json_obj
+
     return json_obj
 
 
