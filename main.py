@@ -18,6 +18,40 @@ from pynmeagps.nmeareader import NMEAReader
 from datetime import time
 from datetime import date
 import pynmeagps.nmeatypes_core as nmt  # so we can add talker device info to message
+from pyais import decode  # decode AIS messages
+
+# Set sentence to the first argument
+# Set sentence to "!" if no argument is given
+sentence = sys.argv[1] if len(sys.argv) > 1 else "!"
+
+
+def decode_ais_message(sentence):
+    decoded = None
+    try:
+        decoded = decode(sentence)
+    except Exception as e:
+        print(f"Error decoding sentence: {e}")
+
+    if decoded is not None:
+        return_json = decoded.to_json()
+        return return_json
+    else:
+        return ""
+
+
+# Call the decode_ais_message function with the sentence variable as input
+# do if sentence is not "!"
+if sentence != "!":
+    decoded_message = decode_ais_message(sentence)
+    # Print the decoded message to the console
+    print(decoded_message)
+
+
+SERVER = ""
+PORT = 50120
+# Set the broadcast IP and port
+broadcast_ip = "255.255.255.255"
+BROADCAST_PORT = 50121
 
 
 def read(stream: socket.socket):
@@ -54,7 +88,8 @@ def print_fields(obj):
         print(f"{key}: {value}")
 
 
-def add_fields_to_json(obj):
+def add_fields_to_json(obj, sentence):
+    # prepare nmea message output to next module
     print_fields(obj)
     print("   ")
     json_obj = {}
@@ -74,27 +109,41 @@ def add_fields_to_json(obj):
 
             json_obj[key] = value
 
-        # handle field talker_device
-        if obj._talker in nmt.NMEA_TALKERS:
-            value = nmt.NMEA_TALKERS[
-                obj._talker
-            ]  # get talker_type_desc from nmeatypes_core.py
-        else:
-            value = ""
-        key = "talker_device"
-        json_obj[key] = value  # add talker_device field to json_obj
+    if obj._msgID in ["VDM", "VDO"]:
+        print("AIS message")
 
-        # handle field talker_type_desc
-        if obj._msgID in nmt.NMEA_MSGIDS:
-            # then the value of mnt.NMEA_MSGIDS[key] is value of talker_type_desc
-            value = nmt.NMEA_MSGIDS[
-                obj._msgID
-            ]  # get talker_type_desc from nmeatypes_core.py
-        else:
-            value = ""
-        key = "talker_type_desc"
+        # Call the decode_ais_message function with dat variable as input
+        # convert sentences string to binary string """
+        # do if sentence is not "!" reverse the ! to $ ! is needed for PyAIS
+        if sentence[0] == "$":
+            sentence = "!" + sentence[1:]
 
-        json_obj[key] = value  # add talker_type_desc field to json_obj
+        sentence_bytes = sentence.encode("utf-8")
+        decoded_message = decode_ais_message(sentence_bytes)
+        # Print the decoded message to the console
+        print(decoded_message)
+
+    # handle field talker_device
+    if obj._talker in nmt.NMEA_TALKERS:
+        value = nmt.NMEA_TALKERS[
+            obj._talker
+        ]  # get talker_type_desc from nmeatypes_core.py
+    else:
+        value = ""
+    key = "talker_device"
+    json_obj[key] = value  # add talker_device field to json_obj
+
+    # handle field talker_type_desc
+    if obj._msgID in nmt.NMEA_MSGIDS:
+        # then the value of mnt.NMEA_MSGIDS[key] is value of talker_type_desc
+        value = nmt.NMEA_MSGIDS[
+            obj._msgID
+        ]  # get talker_type_desc from nmeatypes_core.py
+    else:
+        value = ""
+    key = "talker_type_desc"
+
+    json_obj[key] = value  # add talker_type_desc field to json_obj
 
     return json_obj
 
@@ -105,32 +154,35 @@ def split_and_parse(sentence):
         if s != "":
             try:
                 parsed_data = NMEAReader.parse(s)
+                json_data = json.dumps(add_fields_to_json(parsed_data, sentence))
 
-                print(s)
-                json_data = json.dumps(add_fields_to_json(parsed_data))
+                # Create a UDP socket
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-                print(json.dumps(add_fields_to_json(parsed_data), indent=4))
+                # Set the socket options to allow broadcasting
+                sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-                print("   ")
+                # Send the JSON data over UDP to the broadcast IP and port
+                sock.sendto(json_data.encode(), (broadcast_ip, BROADCAST_PORT))
+
+                # Close the socket
+                sock.close()
 
             except Exception as e:  # catch all exceptions
                 print(f"Error handling data: {e}")
 
 
 if __name__ == "__main__":
-    SERVER = ""
-    PORT = 50120
-
     print(f"Opening socket on port {PORT}...")
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         sock.bind((SERVER, PORT))
         while True:
             data, addr = sock.recvfrom(1024)
             sentence = data.decode("utf-8")
-            """
-            nmr = NMEAReader(sentence)
-            parsed_data = nmr.parse()
-            print(parsed_data)
-            """
+            """ if first char of sentence is not $ replace char with $  this happens in case of VDM and VDO messages"""
 
+            if sentence[0] != "$":
+                sentence = (
+                    "$" + sentence[1:]
+                )  # replace ! with $ so validation check passes
             split_and_parse(sentence)

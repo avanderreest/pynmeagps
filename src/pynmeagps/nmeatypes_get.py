@@ -420,6 +420,22 @@ NMEA_PAYLOADS_GET = {
         "gtspd": DE,
         "gstatus": CH,
     },
+    "VDM": {
+        "numOfMsgs": IN,
+        "msgNum": IN,
+        "seqMsgId": IN,
+        "radioChan": CH,
+        "data": ST,
+        "numOfFillBits": IN,
+    },
+    "VDO": {
+        "numOfMsgs": IN,
+        "msgNum": IN,
+        "seqMsgId": IN,
+        "radioChan": CH,
+        "data": ST,
+        "numOfFillBits": IN,
+    },
     "VDR": {
         "degT": DE,
         "degTUnit": CH,

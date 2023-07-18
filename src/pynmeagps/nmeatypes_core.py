@@ -211,6 +211,8 @@ NMEA_MSGIDS = {
     "TXT": "Text Transmission",
     "VBW": "Dual Ground / Water Speed",
     "VHW": "Water Speed and Heading",
+    "VDM": "AIS VHF Data-link Message",
+    "VDO": "AIS VHF Data-link Own Vessel Report",
     "VLW": "Dual Ground Water Distance",
     "VDR": "Set and Drift",
     "VTG": "Course over ground and Groundspeed",
